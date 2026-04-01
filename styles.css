@@ -141,14 +141,7 @@ button {
 }
 
 .title-group p {
-  margin: 3px 0 0;
-  font-size: 10px;
-  line-height: 1.4;
-  color: var(--muted);
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: none;
 }
 
 .lang-switch {
@@ -190,6 +183,11 @@ button {
   background: rgba(198, 220, 168, 0.16);
   color: var(--accent);
   border-color: var(--accent);
+}
+
+.prompt-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.82;
 }
 
 .terminal-frame {
@@ -510,11 +508,7 @@ button {
 }
 
 .footer-hint {
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.5;
-  text-align: right;
-  max-width: 58ch;
+  display: none;
 }
 
 .companion-stage {
@@ -553,6 +547,10 @@ button {
 
 .companion-meta {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   align-self: center;
   text-align: center;
   color: var(--muted);
@@ -884,6 +882,7 @@ button {
   background: none;
   overflow: visible;
   pointer-events: auto;
+  touch-action: none;
 }
 
 .stage-canvas::before {
@@ -912,6 +911,8 @@ button {
   animation: pet-bob 2.9s ease-in-out infinite;
   animation-delay: var(--pet-delay, 0s);
   pointer-events: auto;
+  touch-action: none;
+  will-change: left, top;
 }
 
 .stage-pet.active .stage-pet-meta {
@@ -1068,6 +1069,10 @@ button {
 }
 
 @media (max-width: 640px) {
+  .terminal-status {
+    display: none;
+  }
+
   .topbar {
     gap: 10px;
   }

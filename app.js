@@ -103,7 +103,7 @@ normalizeState();
 function defaultState() {
   return {
     version: 4,
-    language: 'zh',
+    language: 'en',
     pets: [],
     activePetId: null,
     selectedPetId: null,
@@ -143,7 +143,7 @@ function normalizeState() {
   }
 
   if (state.language !== 'zh' && state.language !== 'en') {
-    state.language = 'zh';
+    state.language = 'en';
   }
 
   if (typeof state.promptValue !== 'string' || !state.promptValue.trim()) {
@@ -383,9 +383,9 @@ function ensureStagePositions() {
 }
 
 function clearPromptForStage() {
-  state.promptValue = '';
-  refs.promptInput.value = '';
-  refs.composerShell.classList.remove('command-ready');
+  state.promptValue = '/buddy';
+  refs.promptInput.value = '/buddy';
+  refs.composerShell.classList.add('command-ready');
 }
 
 function mulberry32(seed) {
@@ -582,7 +582,6 @@ function handleCommand(rawCommand) {
     state.promptValue = '/buddy';
     refs.promptInput.value = '/buddy';
     hatchBuddy();
-    refs.promptInput.focus();
     return;
   }
 
@@ -596,7 +595,6 @@ function handleCommand(rawCommand) {
   refs.promptInput.value = '/buddy';
   saveState();
   renderAll(true);
-  refs.promptInput.focus();
 }
 
 function renderRainbowCommand(value) {
@@ -1170,10 +1168,10 @@ function renderChrome() {
   renderRainbowCommand('/buddy');
   refs.sendButton.textContent = text.send;
   refs.promptInput.placeholder = text.promptPlaceholder;
-  refs.footerHint.textContent = activePet ? text.footerHintReady : text.footerHintEmpty;
+  refs.footerHint.textContent = '';
   refs.langToggle.textContent = state.language === 'zh' ? 'English' : '\u4e2d\u6587';
   refs.langToggle.setAttribute('aria-label', state.language === 'zh' ? 'Switch to English' : '\u5207\u6362\u5230\u4e2d\u6587');
-  refs.composerShell.classList.toggle('command-ready', refs.promptInput.value.includes('/buddy'));
+  refs.composerShell.classList.add('command-ready');
 
   if (activePet) {
     refs.companionPill.classList.remove('hidden');
@@ -1188,7 +1186,7 @@ function renderChrome() {
   refs.warehousePill.textContent = text.warehousePill(state.pets.length, MAX_WAREHOUSE);
   refs.stagePill.classList.toggle('hidden', state.pets.length === 0);
   refs.stagePill.classList.toggle('active', state.stageOpen);
-  refs.stagePill.textContent = `${text.stagePill} ${state.pets.length}/${MAX_WAREHOUSE}`;
+  refs.stagePill.textContent = text.stagePill;
 }
 
 function renderAll(shouldScroll = false) {
@@ -1263,18 +1261,7 @@ function bindDragEvents() {
 }
 
 function bindEvents() {
-  refs.sendButton.addEventListener('click', () => handleCommand(refs.promptInput.value));
-  refs.promptInput.addEventListener('keydown', event => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      handleCommand(refs.promptInput.value);
-    }
-  });
-  refs.promptInput.addEventListener('input', () => {
-    state.promptValue = refs.promptInput.value;
-    refs.composerShell.classList.toggle('command-ready', refs.promptInput.value.includes('/buddy'));
-    saveState();
-  });
+  refs.sendButton.addEventListener('click', () => handleCommand('/buddy'));
   refs.langToggle.addEventListener('click', () => {
     state.language = state.language === 'zh' ? 'en' : 'zh';
     saveState();
@@ -1286,7 +1273,6 @@ function bindEvents() {
     state.selectedPetId = state.activePetId;
     saveState();
     renderAll();
-    refs.promptInput.focus();
   });
   refs.warehousePill.addEventListener('click', () => {
     state.warehouseOpen = !state.warehouseOpen;
@@ -1392,22 +1378,21 @@ function bindEvents() {
     clearPromptForStage();
     state.selectedPetId = Number(actor.dataset.stagePetId);
 
-    const stageRect = stage.getBoundingClientRect();
-    const actorRect = actor.getBoundingClientRect();
+    const petId = Number(actor.dataset.stagePetId);
+    const position = state.stagePositions[String(petId)] ?? ensureStagePositions()[String(petId)];
     stageDragState = {
       pointerId: event.pointerId,
-      petId: Number(actor.dataset.stagePetId),
-      stageRect,
-      actorWidth: actorRect.width,
-      actorHeight: actorRect.height,
-      offsetX: event.clientX - actorRect.left,
-      offsetY: event.clientY - actorRect.top,
+      petId,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startX: position.x,
+      startY: position.y,
     };
 
     actor.classList.add('dragging');
     actor.setPointerCapture?.(event.pointerId);
+    stage.setPointerCapture?.(event.pointerId);
     event.preventDefault();
-    saveState();
     renderChrome();
     renderWarehouse();
   });
@@ -1417,10 +1402,16 @@ function bindEvents() {
       return;
     }
 
-    const centerX = event.clientX - stageDragState.stageRect.left - stageDragState.offsetX + stageDragState.actorWidth / 2;
-    const centerY = event.clientY - stageDragState.stageRect.top - stageDragState.offsetY + stageDragState.actorHeight / 2;
-    const nextX = clampStageValue(centerX / Math.max(1, stageDragState.stageRect.width), STAGE_LIMITS.minX, STAGE_LIMITS.maxX);
-    const nextY = clampStageValue(centerY / Math.max(1, stageDragState.stageRect.height), STAGE_LIMITS.minY, STAGE_LIMITS.maxY);
+    const stage = refs.stagePanel.querySelector('.stage-canvas.active');
+    if (!stage) {
+      return;
+    }
+
+    const stageRect = stage.getBoundingClientRect();
+    const deltaX = (event.clientX - stageDragState.startClientX) / Math.max(1, stageRect.width);
+    const deltaY = (event.clientY - stageDragState.startClientY) / Math.max(1, stageRect.height);
+    const nextX = clampStageValue(stageDragState.startX + deltaX, STAGE_LIMITS.minX, STAGE_LIMITS.maxX);
+    const nextY = clampStageValue(stageDragState.startY + deltaY, STAGE_LIMITS.minY, STAGE_LIMITS.maxY);
     state.stagePositions[String(stageDragState.petId)] = {
       x: nextX,
       y: nextY,
@@ -1453,11 +1444,10 @@ function bindEvents() {
 }
 
 function bootstrap() {
-  refs.promptInput.value = state.promptValue || '/buddy';
+  refs.promptInput.value = '/buddy';
   bindDragEvents();
   bindEvents();
   renderAll(true);
-  refs.promptInput.focus();
 
   window.setInterval(() => {
     uiTick += 1;
