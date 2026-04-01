@@ -108,6 +108,7 @@ function defaultState() {
     activePetId: null,
     selectedPetId: null,
     warehouseOpen: false,
+    warehouseMobileDetailOpen: false,
     stageOpen: false,
     companionPosition: null,
     stagePositions: {},
@@ -162,6 +163,7 @@ function normalizeState() {
     state.activePetId = null;
     state.selectedPetId = null;
     state.warehouseOpen = false;
+    state.warehouseMobileDetailOpen = false;
     state.stageOpen = false;
   }
 
@@ -169,6 +171,7 @@ function normalizeState() {
     state.companionPosition = null;
   }
 
+  state.warehouseMobileDetailOpen = Boolean(state.warehouseMobileDetailOpen);
   state.stageOpen = Boolean(state.stageOpen);
   if (!state.stagePositions || typeof state.stagePositions !== 'object') {
     state.stagePositions = {};
@@ -194,6 +197,7 @@ function saveState() {
     JSON.stringify({
       ...state,
       warehouseOpen: Boolean(state.warehouseOpen && state.pets.length),
+      warehouseMobileDetailOpen: Boolean(state.warehouseMobileDetailOpen && state.pets.length),
       promptValue: state.promptValue || '/buddy',
     }),
   );
@@ -228,6 +232,10 @@ function getActivePet() {
 
 function getSelectedPet() {
   return findPet(state.selectedPetId) ?? getActivePet() ?? state.pets[0] ?? null;
+}
+
+function isCompactWarehouseLayout() {
+  return window.matchMedia('(max-width: 900px)').matches;
 }
 
 function getText(lang = state.language) {
@@ -492,6 +500,7 @@ function showBubble(payload) {
 function hatchBuddy() {
   if (state.pets.length >= MAX_WAREHOUSE) {
     state.warehouseOpen = true;
+    state.warehouseMobileDetailOpen = false;
     appendLog('warehouse-full');
     showBubble({
       zh: getText('zh').warehouseFull,
@@ -855,12 +864,17 @@ function renderTranscript(shouldScroll = false) {
 
 function renderWarehouse() {
   const text = getText();
+  const compactLayout = isCompactWarehouseLayout();
+  const mobileDetailOpen = compactLayout && state.warehouseMobileDetailOpen && Boolean(getSelectedPet());
+
   refs.warehouseTitle.textContent = text.warehouseTitle;
   refs.warehouseSubtitle.textContent = text.warehouseSubtitle(state.pets.length, MAX_WAREHOUSE);
   refs.closeWarehouseBtn.textContent = text.close;
 
   const shouldShow = state.warehouseOpen && state.pets.length > 0;
   refs.warehousePanel.classList.toggle('hidden', !shouldShow);
+  refs.warehousePanel.classList.toggle('compact-layout', compactLayout);
+  refs.warehousePanel.classList.toggle('mobile-detail-open', mobileDetailOpen);
 
   refs.warehouseSlots.replaceChildren();
   refs.warehouseDetail.replaceChildren();
@@ -953,6 +967,15 @@ function renderWarehouse() {
 
   const header = document.createElement('div');
   header.className = 'detail-header';
+
+  if (compactLayout) {
+    const backButton = document.createElement('button');
+    backButton.className = 'detail-back';
+    backButton.type = 'button';
+    backButton.dataset.action = 'back-to-list';
+    backButton.textContent = text.backToList;
+    header.append(backButton);
+  }
 
   const titleWrap = document.createElement('div');
   const name = document.createElement('h2');
@@ -1251,6 +1274,12 @@ function bindDragEvents() {
   window.addEventListener('pointercancel', stopDrag);
 
   window.addEventListener('resize', () => {
+    if (!isCompactWarehouseLayout() && state.warehouseMobileDetailOpen) {
+      state.warehouseMobileDetailOpen = false;
+      saveState();
+      renderWarehouse();
+    }
+
     if (!state.companionPosition) {
       return;
     }
@@ -1269,6 +1298,7 @@ function bindEvents() {
   });
   refs.companionPill.addEventListener('click', () => {
     state.warehouseOpen = false;
+    state.warehouseMobileDetailOpen = false;
     state.stageOpen = false;
     state.selectedPetId = state.activePetId;
     saveState();
@@ -1276,6 +1306,7 @@ function bindEvents() {
   });
   refs.warehousePill.addEventListener('click', () => {
     state.warehouseOpen = !state.warehouseOpen;
+    state.warehouseMobileDetailOpen = false;
     if (state.warehouseOpen) {
       state.stageOpen = false;
     }
@@ -1287,6 +1318,7 @@ function bindEvents() {
     state.stageOpen = !state.stageOpen;
     if (state.stageOpen) {
       state.warehouseOpen = false;
+      state.warehouseMobileDetailOpen = false;
       state.selectedPetId = state.selectedPetId ?? state.activePetId;
       ensureStagePositions();
       clearPromptForStage();
@@ -1296,6 +1328,7 @@ function bindEvents() {
   });
   refs.closeWarehouseBtn.addEventListener('click', () => {
     state.warehouseOpen = false;
+    state.warehouseMobileDetailOpen = false;
     saveState();
     renderAll();
   });
@@ -1322,6 +1355,25 @@ function bindEvents() {
       return;
     }
     state.selectedPetId = Number(row.dataset.selectId);
+    if (isCompactWarehouseLayout()) {
+      state.warehouseMobileDetailOpen = true;
+    }
+    saveState();
+    renderWarehouse();
+  });
+
+  refs.warehouseDetail.addEventListener('click', event => {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    const backButton = target.closest('button[data-action="back-to-list"]');
+    if (!backButton) {
+      return;
+    }
+
+    state.warehouseMobileDetailOpen = false;
     saveState();
     renderWarehouse();
   });

@@ -748,6 +748,22 @@ button {
   font-size: 10px;
 }
 
+.detail-back {
+  display: none;
+  border: 1px solid rgba(198, 220, 168, 0.3);
+  background: rgba(198, 220, 168, 0.04);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.detail-back:hover {
+  border-color: var(--accent);
+  background: rgba(198, 220, 168, 0.1);
+}
+
 .slot-delete {
   border-color: rgba(255, 157, 173, 0.35);
   color: #ffd3da;
@@ -1040,17 +1056,48 @@ button {
     left: 10px;
     right: 10px;
     top: 88px;
-    bottom: 92px;
+    bottom: 10px;
   }
 
   .panel-body {
     grid-template-columns: 1fr;
+    height: 100%;
   }
 
-  .warehouse-slots {
-    max-height: 42dvh;
+  .warehouse-panel.compact-layout .warehouse-slots,
+  .warehouse-panel.compact-layout .warehouse-detail {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .warehouse-panel.compact-layout .warehouse-slots {
+    max-height: none;
     border-right: 0;
-    border-bottom: 1px solid var(--border-soft);
+    border-bottom: 0;
+  }
+
+  .warehouse-panel.compact-layout .warehouse-detail {
+    display: none;
+  }
+
+  .warehouse-panel.compact-layout.mobile-detail-open .warehouse-slots {
+    display: none;
+  }
+
+  .warehouse-panel.compact-layout.mobile-detail-open .warehouse-detail {
+    display: block;
+  }
+
+  .warehouse-panel.compact-layout .detail-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .warehouse-panel.compact-layout .detail-header {
+    flex-wrap: wrap;
+    align-items: flex-start;
   }
 
   .companion-stage {
