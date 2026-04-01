@@ -89,8 +89,7 @@ const refs = {
   warehousePill: document.getElementById('warehousePill'),
   stagePill: document.getElementById('stagePill'),
   footerHint: document.getElementById('footerHint'),
-  langZh: document.getElementById('langZh'),
-  langEn: document.getElementById('langEn'),
+  langToggle: document.getElementById('langToggle'),
 };
 
 let uiTick = 0;
@@ -542,14 +541,18 @@ function deletePet(id) {
     return;
   }
 
-    delete state.stagePositions[String(id)];
+  const wasActive = state.activePetId === id;
+  const wasSelected = state.selectedPetId === id;
+
+  state.pets = state.pets.filter(candidate => candidate.id !== id);
+  delete state.stagePositions[String(id)];
   appendLog('release', { pet: clonePet(pet) });
 
-  if (state.activePetId === id) {
+  if (wasActive) {
     state.activePetId = state.pets[0]?.id ?? null;
   }
 
-  if (state.selectedPetId === id) {
+  if (wasSelected) {
     state.selectedPetId = state.activePetId ?? state.pets[0]?.id ?? null;
   }
 
@@ -1168,8 +1171,8 @@ function renderChrome() {
   refs.sendButton.textContent = text.send;
   refs.promptInput.placeholder = text.promptPlaceholder;
   refs.footerHint.textContent = activePet ? text.footerHintReady : text.footerHintEmpty;
-  refs.langZh.classList.toggle('active', state.language === 'zh');
-  refs.langEn.classList.toggle('active', state.language === 'en');
+  refs.langToggle.textContent = state.language === 'zh' ? 'English' : '\u4e2d\u6587';
+  refs.langToggle.setAttribute('aria-label', state.language === 'zh' ? 'Switch to English' : '\u5207\u6362\u5230\u4e2d\u6587');
   refs.composerShell.classList.toggle('command-ready', refs.promptInput.value.includes('/buddy'));
 
   if (activePet) {
@@ -1272,13 +1275,8 @@ function bindEvents() {
     refs.composerShell.classList.toggle('command-ready', refs.promptInput.value.includes('/buddy'));
     saveState();
   });
-  refs.langZh.addEventListener('click', () => {
-    state.language = 'zh';
-    saveState();
-    renderAll();
-  });
-  refs.langEn.addEventListener('click', () => {
-    state.language = 'en';
+  refs.langToggle.addEventListener('click', () => {
+    state.language = state.language === 'zh' ? 'en' : 'zh';
     saveState();
     renderAll();
   });
