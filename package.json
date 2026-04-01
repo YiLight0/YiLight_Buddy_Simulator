@@ -1,0 +1,13 @@
+﻿{
+  "name": "claude-code-buddy-simulator",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "check": "node --check index.js && node --check app.js && node --check i18n.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
