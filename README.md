@@ -228,6 +228,15 @@ node index.js --port 5050
 http://127.0.0.1:5050
 ```
 
+## 部署到 Vercel
+
+这个项目现在可以直接部署为静态站点。已添加 `vercel.json`，用于将 `index.html` 作为静态入口并把所有路径重写到首页，从而兼容 `/buddy` 入口。
+
+部署后你可以访问：
+
+- `https://<your-project>.vercel.app/`
+- `https://<your-project>.vercel.app/buddy`
+
 ## 常用操作
 
 - 抽新宠：输入 `/buddy` 后回车，或直接点右侧按钮
