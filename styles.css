@@ -39,6 +39,28 @@ body {
   color: var(--text);
   font-family: var(--mono);
   overflow: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160, 167, 183, 0.45) #0b0c10;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #0b0c10;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(160, 167, 183, 0.45);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 167, 183, 0.65);
 }
 
 button,
