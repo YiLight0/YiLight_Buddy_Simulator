@@ -8,6 +8,6 @@
     "check": "node --check index.js && node --check app.js && node --check i18n.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": "20.x"
   }
 }
