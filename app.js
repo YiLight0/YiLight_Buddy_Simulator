@@ -247,20 +247,14 @@ function updateWarehousePanelBounds() {
     return;
   }
 
-  if (!isCompactWarehouseLayout()) {
-    refs.warehousePanel.style.removeProperty('--warehouse-mobile-top');
-    refs.warehousePanel.style.removeProperty('--warehouse-mobile-bottom');
-    return;
-  }
-
   const frameRect = refs.terminalFrame.getBoundingClientRect();
   const statusRect = refs.terminalStatus.getBoundingClientRect();
   const composerRect = refs.composerShell.getBoundingClientRect();
   const top = Math.max(0, Math.round(statusRect.bottom - frameRect.top));
   const bottom = Math.max(0, Math.round(frameRect.bottom - composerRect.top));
 
-  refs.warehousePanel.style.setProperty('--warehouse-mobile-top', `${top}px`);
-  refs.warehousePanel.style.setProperty('--warehouse-mobile-bottom', `${bottom}px`);
+  refs.warehousePanel.style.setProperty('--warehouse-panel-top', `${top}px`);
+  refs.warehousePanel.style.setProperty('--warehouse-panel-bottom', `${bottom}px`);
 }
 
 function getText(lang = state.language) {

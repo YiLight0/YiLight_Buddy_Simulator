@@ -226,9 +226,11 @@ button {
   gap: 8px;
   white-space: nowrap;
   min-width: 0;
+  overflow: hidden;
 }
 
 .terminal-status .status-left-label {
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -236,6 +238,7 @@ button {
 
 .terminal-status .rainbow-command {
   flex: 0 0 auto;
+  min-width: max-content;
 }
 
 .terminal-status span:nth-child(2) {
@@ -657,8 +660,8 @@ button {
   flex-direction: column;
   left: 18px;
   right: min(34vw, 420px);
-  top: 94px;
-  bottom: 92px;
+  top: var(--warehouse-panel-top, 94px);
+  bottom: var(--warehouse-panel-bottom, 92px);
   z-index: 72;
   border: 1px solid var(--border);
   border-radius: 0;
@@ -696,13 +699,14 @@ button {
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(290px, 0.95fr) minmax(260px, 1.05fr);
-  min-height: 100%;
+  overflow: hidden;
 }
 
 .warehouse-slots {
   min-height: 0;
   border-right: 1px solid var(--border-soft);
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .slot-row {
@@ -797,6 +801,7 @@ button {
   min-height: 0;
   padding: 16px;
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .warehouse-detail-stack {
@@ -1074,13 +1079,10 @@ button {
   .warehouse-panel {
     left: 10px;
     right: 10px;
-    top: var(--warehouse-mobile-top, 88px);
-    bottom: var(--warehouse-mobile-bottom, 78px);
   }
 
   .panel-body {
     grid-template-columns: 1fr;
-    height: 100%;
   }
 
   .warehouse-panel.compact-layout .warehouse-slots,
