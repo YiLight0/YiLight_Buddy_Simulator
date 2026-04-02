@@ -222,25 +222,25 @@ button {
 }
 
 .terminal-status span:first-child {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
+  column-gap: 8px;
   white-space: nowrap;
   min-width: 0;
   overflow: hidden;
   justify-self: start;
+  width: 100%;
 }
 
 .terminal-status .status-left-label {
-  flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .terminal-status .rainbow-command {
-  flex: 0 0 auto;
   min-width: max-content;
 }
 
