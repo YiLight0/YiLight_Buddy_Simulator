@@ -1144,7 +1144,13 @@ button {
 
 @media (max-width: 640px) {
   .terminal-status {
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 10px;
+  }
+
+  .terminal-status span:first-child {
+    justify-self: start;
+    width: 100%;
   }
 
   .terminal-status span:nth-child(2),
@@ -1154,6 +1160,7 @@ button {
 
   .terminal-status .lang-switch {
     display: inline-flex;
+    justify-self: end;
     margin-left: 0;
   }
 
