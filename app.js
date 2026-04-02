@@ -67,6 +67,7 @@ const refs = {
   statusLeft: document.getElementById('statusLeft'),
   statusCenter: document.getElementById('statusCenter'),
   statusRight: document.getElementById('statusRight'),
+  mobileReadyLine: document.getElementById('mobileReadyLine'),
   terminalStatus: document.querySelector('.terminal-status'),
   noticeText: document.getElementById('noticeText'),
   noticeCommand: document.getElementById('noticeCommand'),
@@ -625,9 +626,9 @@ function handleCommand(rawCommand) {
   renderAll(true);
 }
 
-function createRainbowCommand(value) {
+function createRainbowCommand(value, className = 'rainbow-command') {
   const rainbow = document.createElement('span');
-  rainbow.className = 'rainbow-command';
+  rainbow.className = className;
   [...value].forEach(character => {
     const span = document.createElement('span');
     span.textContent = character;
@@ -1194,10 +1195,12 @@ function renderChrome() {
   refs.appTitle.textContent = text.title;
   refs.appSubtitle.textContent = text.subtitle || '';
   refs.statusLeft.replaceChildren();
+  refs.mobileReadyLine.replaceChildren();
+
   const statusLeftLabel = document.createElement('span');
   statusLeftLabel.className = 'status-left-label';
-  statusLeftLabel.textContent = `${activePet ? text.statusLeftReady(getNickname(activePet)) : text.statusLeftTeaser} `;
-  refs.statusLeft.append(statusLeftLabel, createRainbowCommand('/buddy'));
+  statusLeftLabel.textContent = activePet ? text.statusLeftReady(getNickname(activePet)) : text.statusLeftTeaser;
+  refs.statusLeft.append(statusLeftLabel, createRainbowCommand('/buddy', 'rainbow-command status-buddy-command'));
   refs.statusCenter.textContent = activePet ? text.statusCenterOnline : text.statusCenterOffline;
   refs.statusRight.textContent = text.statusRight(state.pets.length, MAX_WAREHOUSE);
   refs.noticeText.textContent = '';
