@@ -214,7 +214,8 @@ button {
 }
 
 .terminal-status {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   color: var(--muted);
@@ -227,9 +228,8 @@ button {
   gap: 8px;
   white-space: nowrap;
   min-width: 0;
-  flex: 1 1 auto;
   overflow: hidden;
-  margin-right: auto;
+  justify-self: start;
 }
 
 .terminal-status .status-left-label {
@@ -244,14 +244,18 @@ button {
   min-width: max-content;
 }
 
-.terminal-status span:nth-child(2),
+.terminal-status span:nth-child(2) {
+  justify-self: center;
+  white-space: nowrap;
+}
+
 .terminal-status span:nth-child(3) {
-  flex: 0 0 auto;
+  justify-self: end;
   white-space: nowrap;
 }
 
 .terminal-status .lang-switch {
-  flex: 0 0 auto;
+  justify-self: end;
   margin-left: 4px;
 }
 
