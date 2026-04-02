@@ -87,7 +87,7 @@ button {
   z-index: 80;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-wrap: nowrap;
   gap: 16px;
   min-height: 60px;
@@ -206,7 +206,7 @@ button {
 .terminal-status,
 .terminal-notice {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 12px;
   padding: 10px 18px;
   font-size: 10px;
@@ -220,6 +220,14 @@ button {
   color: var(--muted);
 }
 
+.terminal-status span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  min-width: 0;
+}
+
 .terminal-status span:nth-child(2) {
   text-align: center;
 }
@@ -228,11 +236,12 @@ button {
   text-align: right;
 }
 
+.terminal-status .lang-switch {
+  justify-self: end;
+}
+
 .terminal-notice {
-  grid-template-columns: auto auto 1fr;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  color: var(--subtle);
+  display: none;
 }
 
 .rainbow-command {
@@ -522,6 +531,9 @@ button {
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(23, 27, 37, 0.5);
   pointer-events: auto;
   cursor: grab;
   touch-action: none;
@@ -606,7 +618,7 @@ button {
 .stage-shell {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
   min-height: 0;
   padding: 0;
   height: 100%;
@@ -640,7 +652,7 @@ button {
   right: min(34vw, 420px);
   top: 94px;
   bottom: 92px;
-  z-index: 50;
+  z-index: 72;
   border: 1px solid var(--border);
   border-radius: 0;
   background: rgba(16, 20, 28, 0.98);
@@ -862,7 +874,7 @@ button {
 .stage-shell {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
   min-height: 0;
   padding: 0;
   height: 100%;
@@ -1055,8 +1067,8 @@ button {
   .warehouse-panel {
     left: 10px;
     right: 10px;
-    top: 88px;
-    bottom: 10px;
+    top: var(--warehouse-mobile-top, 88px);
+    bottom: var(--warehouse-mobile-bottom, 78px);
   }
 
   .panel-body {
@@ -1117,16 +1129,24 @@ button {
 
 @media (max-width: 640px) {
   .terminal-status {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .terminal-status span:nth-child(2),
+  .terminal-status span:nth-child(3) {
     display: none;
+  }
+
+  .terminal-status .lang-switch {
+    display: inline-flex;
+    justify-self: end;
   }
 
   .topbar {
     gap: 10px;
   }
 
-  .window-dots {
-    display: none;
-  }
 
   .title-group p {
     display: none;

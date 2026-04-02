@@ -67,8 +67,11 @@ const refs = {
   statusLeft: document.getElementById('statusLeft'),
   statusCenter: document.getElementById('statusCenter'),
   statusRight: document.getElementById('statusRight'),
+  terminalStatus: document.querySelector('.terminal-status'),
   noticeText: document.getElementById('noticeText'),
   noticeCommand: document.getElementById('noticeCommand'),
+  terminalFrame: document.querySelector('.terminal-frame'),
+  terminalNotice: document.querySelector('.terminal-notice'),
   transcript: document.getElementById('transcript'),
   transcriptWrap: document.querySelector('.transcript-wrap'),
   warehousePanel: document.getElementById('warehousePanel'),
@@ -78,6 +81,7 @@ const refs = {
   warehouseSlots: document.getElementById('warehouseSlots'),
   warehouseDetail: document.getElementById('warehouseDetail'),
   stagePanel: document.getElementById('stagePanel'),
+  bottomArea: document.querySelector('.bottom-area'),
   composerShell: document.getElementById('composerShell'),
   promptInput: document.getElementById('promptInput'),
   sendButton: document.getElementById('sendButton'),
@@ -236,6 +240,27 @@ function getSelectedPet() {
 
 function isCompactWarehouseLayout() {
   return window.matchMedia('(max-width: 900px)').matches;
+}
+
+function updateWarehousePanelBounds() {
+  if (!refs.terminalFrame || !refs.terminalStatus || !refs.composerShell) {
+    return;
+  }
+
+  if (!isCompactWarehouseLayout()) {
+    refs.warehousePanel.style.removeProperty('--warehouse-mobile-top');
+    refs.warehousePanel.style.removeProperty('--warehouse-mobile-bottom');
+    return;
+  }
+
+  const frameRect = refs.terminalFrame.getBoundingClientRect();
+  const statusRect = refs.terminalStatus.getBoundingClientRect();
+  const composerRect = refs.composerShell.getBoundingClientRect();
+  const top = Math.max(0, Math.round(statusRect.bottom - frameRect.top));
+  const bottom = Math.max(0, Math.round(frameRect.bottom - composerRect.top));
+
+  refs.warehousePanel.style.setProperty('--warehouse-mobile-top', `${top}px`);
+  refs.warehousePanel.style.setProperty('--warehouse-mobile-bottom', `${bottom}px`);
 }
 
 function getText(lang = state.language) {
@@ -606,13 +631,15 @@ function handleCommand(rawCommand) {
   renderAll(true);
 }
 
-function renderRainbowCommand(value) {
-  refs.noticeCommand.replaceChildren();
+function createRainbowCommand(value) {
+  const rainbow = document.createElement('span');
+  rainbow.className = 'rainbow-command';
   [...value].forEach(character => {
     const span = document.createElement('span');
     span.textContent = character;
-    refs.noticeCommand.append(span);
+    rainbow.append(span);
   });
+  return rainbow;
 }
 
 function buildAnimatedSprite(pet, lively) {
@@ -875,6 +902,7 @@ function renderWarehouse() {
   refs.warehousePanel.classList.toggle('hidden', !shouldShow);
   refs.warehousePanel.classList.toggle('compact-layout', compactLayout);
   refs.warehousePanel.classList.toggle('mobile-detail-open', mobileDetailOpen);
+  updateWarehousePanelBounds();
 
   refs.warehouseSlots.replaceChildren();
   refs.warehouseDetail.replaceChildren();
@@ -1038,19 +1066,6 @@ function createStagePanel(selected) {
   const shell = document.createElement('section');
   shell.className = 'stage-shell';
 
-  const header = document.createElement('div');
-  header.className = 'stage-header';
-
-  const title = document.createElement('div');
-  title.className = 'stage-title';
-  title.textContent = `${text.stageTitle} ${state.pets.length}/${MAX_WAREHOUSE}`;
-
-  const hint = document.createElement('div');
-  hint.className = 'stage-hint';
-  hint.textContent = text.stageReady;
-
-  header.append(title, hint);
-
   const stage = document.createElement('div');
   stage.className = 'stage-canvas active';
 
@@ -1087,7 +1102,7 @@ function createStagePanel(selected) {
     stage.append(actor);
   });
 
-  shell.append(header, stage);
+  shell.append(stage);
   return shell;
 }
 
@@ -1184,11 +1199,15 @@ function renderChrome() {
   document.title = text.title;
   refs.appTitle.textContent = text.title;
   refs.appSubtitle.textContent = text.subtitle || '';
-  refs.statusLeft.textContent = activePet ? text.statusLeftReady : text.statusLeftTeaser;
+  refs.statusLeft.replaceChildren();
+  refs.statusLeft.append(
+    document.createTextNode(`${activePet ? text.statusLeftReady(getNickname(activePet)) : text.statusLeftTeaser} `),
+    createRainbowCommand('/buddy'),
+  );
   refs.statusCenter.textContent = activePet ? text.statusCenterOnline : text.statusCenterOffline;
   refs.statusRight.textContent = text.statusRight(state.pets.length, MAX_WAREHOUSE);
-  refs.noticeText.textContent = activePet ? text.noticeReady : text.noticeTeaser;
-  renderRainbowCommand('/buddy');
+  refs.noticeText.textContent = '';
+  refs.noticeCommand.replaceChildren();
   refs.sendButton.textContent = text.send;
   refs.promptInput.placeholder = text.promptPlaceholder;
   refs.footerHint.textContent = '';
@@ -1279,6 +1298,8 @@ function bindDragEvents() {
       saveState();
       renderWarehouse();
     }
+
+    updateWarehousePanelBounds();
 
     if (!state.companionPosition) {
       return;
@@ -1500,6 +1521,7 @@ function bootstrap() {
   bindDragEvents();
   bindEvents();
   renderAll(true);
+  updateWarehousePanelBounds();
 
   window.setInterval(() => {
     uiTick += 1;
