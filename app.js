@@ -1200,10 +1200,10 @@ function renderChrome() {
   refs.appTitle.textContent = text.title;
   refs.appSubtitle.textContent = text.subtitle || '';
   refs.statusLeft.replaceChildren();
-  refs.statusLeft.append(
-    document.createTextNode(`${activePet ? text.statusLeftReady(getNickname(activePet)) : text.statusLeftTeaser} `),
-    createRainbowCommand('/buddy'),
-  );
+  const statusLeftLabel = document.createElement('span');
+  statusLeftLabel.className = 'status-left-label';
+  statusLeftLabel.textContent = `${activePet ? text.statusLeftReady(getNickname(activePet)) : text.statusLeftTeaser} `;
+  refs.statusLeft.append(statusLeftLabel, createRainbowCommand('/buddy'));
   refs.statusCenter.textContent = activePet ? text.statusCenterOnline : text.statusCenterOffline;
   refs.statusRight.textContent = text.statusRight(state.pets.length, MAX_WAREHOUSE);
   refs.noticeText.textContent = '';
